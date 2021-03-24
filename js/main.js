@@ -41,6 +41,7 @@ const closeModal = () => {
 
 const closeCart = e => {
 	const target = e.target;
+	// Проверка на наличие класса!
 	if(target.classList.contains('overlay') || 
 		target.classList.contains('modal-close')) {
 			closeModal();

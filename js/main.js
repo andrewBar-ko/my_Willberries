@@ -11,6 +11,8 @@ const mySwiper = new Swiper('.swiper-container', {
 	},
 });
 
+
+
 // Cart
 const btnCart = document.querySelector('.button-cart'),
 	modalCart = document.querySelector('#modal-cart');
@@ -26,16 +28,16 @@ const closeModal = () => {
 // Scroll smooth function All
 {
 	const scrollLinks = document.querySelectorAll('a.scroll-link');
-	for (let i = 0; i < scrollLinks.length; i++) {
+	for (const scrollLink of scrollLinks) {
 		const sclink = e =>{
 			e.preventDefault();
-			const id = scrollLinks[i].getAttribute('href');
+			const id = scrollLink.getAttribute('href');
 			document.querySelector(id).scrollIntoView({
 				behavior: 'smooth',
 				block: 'start',
 			});
 		};
-		scrollLinks[i].addEventListener('click', sclink);
+		scrollLink.addEventListener('click', sclink);
 	}
 }
 
@@ -57,3 +59,83 @@ document.addEventListener('keydown', e => {
 
 btnCart.addEventListener('click', openModal);
 modalCart.addEventListener('click', closeCart);
+
+
+
+// Working with goods
+const more = document.querySelector('.more'),
+	navLink = document.querySelectorAll('.navigation-link'),
+	longGoodsList = document.querySelector('.long-goods-list');
+
+// Получение товаров 
+const getGoods = async () => {
+	// Вместо db/db.json можно поставить любой адрес!
+	const result = await fetch('db/db.json');	
+	if(!result.ok) {
+		throw 'Ошибочка вышла:' + result.status;
+	}
+	return await result.json();
+};
+// Добавление карточки товара
+const createCart = ({ label, img, name, description, id, price}) => {
+	const card = document.createElement('div');
+	card.className = 'col-lg-3 col-sm-6';
+
+	card.innerHTML = `
+		<div class="goods-card">
+			${label ?
+				`<span class="label">
+					${label}
+				</span>` :
+				''}
+			<img src="db/${img}" alt="${name}" class="goods-image">
+			<h3 class="goods-title">
+				${name}
+			</h3>
+			<p class="goods-description">
+				${description}
+			</p>
+			<button class="button goods-card-btn add-to-cart" data-id="${id}">
+				<span class="button-price">$${price}</span>
+			</button>
+		</div>
+	`;
+	return card;
+};
+
+// Показ карточки товара
+const renderCards = data => {
+	longGoodsList.textContent = '';
+	const cards = data.map(createCart);
+	longGoodsList.append(...cards);
+
+	document.body.classList.add('show-goods');
+};
+
+// Показ всех карточек при клике на View All
+more.addEventListener('click', e => {
+	e.preventDefault();
+	getGoods().then(renderCards);
+});
+
+// Показ карточек из категорий меню:
+// Фильтр
+const filterCards = (field, value) => {
+	getGoods()
+		.then(data => {
+			const filtereGoods = data.filter(good => {
+				return good[field] === value;
+			});
+			return filtereGoods;
+		})
+		.then(renderCards);
+};
+// Показ при клике
+navLink.forEach(link => {
+	link.addEventListener('click', e => {
+		e.preventDefault();
+		const field = link.dataset.field,
+			value = link.textContent;
+			filterCards(field, value);
+	});
+});

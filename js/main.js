@@ -63,9 +63,11 @@ modalCart.addEventListener('click', closeCart);
 
 
 // Working with goods
-const more = document.querySelector('.more'),
-	navLink = document.querySelectorAll('.navigation-link'),
-	longGoodsList = document.querySelector('.long-goods-list');
+const viewAll = document.querySelectorAll('.view-all'),
+	navLink = document.querySelectorAll('.navigation-link:not(.view-all)'),
+	longGoodsList = document.querySelector('.long-goods-list'),
+	showAcsess = document.querySelectorAll('.show-acsess'),
+	showClosing = document.querySelectorAll('.show-closing');
 
 // Получение товаров 
 const getGoods = async () => {
@@ -113,9 +115,13 @@ const renderCards = data => {
 };
 
 // Показ всех карточек при клике на View All
-more.addEventListener('click', e => {
+const showAll = e => {
 	e.preventDefault();
 	getGoods().then(renderCards);
+};
+
+viewAll.forEach(elem => {
+	elem.addEventListener('click', showAll);
 });
 
 // Показ карточек из категорий меню:
@@ -137,5 +143,20 @@ navLink.forEach(link => {
 		const field = link.dataset.field,
 			value = link.textContent;
 			filterCards(field, value);
+	});
+});
+
+// Click по баннерам
+showAcsess.forEach(item => {
+	item.addEventListener('click', e => {
+		e.preventDefault();
+		filterCards('category', 'Accessories');
+	});
+});
+
+showClosing.forEach(item => {
+	item.addEventListener('click', e => {
+		e.preventDefault();
+		filterCards('category', 'Clothing');
 	});
 });

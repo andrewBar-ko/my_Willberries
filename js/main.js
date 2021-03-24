@@ -13,29 +13,21 @@ const mySwiper = new Swiper('.swiper-container', {
 
 // Cart
 const btnCart = document.querySelector('.button-cart'),
-	overlay = document.querySelector('.overlay'),
-	modalCart = document.querySelector('#modal-cart'),
-	modalClose = document.querySelector('.modal-close');
+	modalCart = document.querySelector('#modal-cart');
 
 const openModal = () => {
-
 	modalCart.classList.add('show');
-
 };
 
 const closeModal = () => {
-
 	modalCart.classList.remove('show');
-
 };
 
 // Scroll smooth function All
 {
 	const scrollLinks = document.querySelectorAll('a.scroll-link');
-
 	for (let i = 0; i < scrollLinks.length; i++) {
-
-		const sclink = e => {
+		const sclink = e =>{
 			e.preventDefault();
 			const id = scrollLinks[i].getAttribute('href');
 			document.querySelector(id).scrollIntoView({
@@ -43,23 +35,24 @@ const closeModal = () => {
 				block: 'start',
 			});
 		};
-
 		scrollLinks[i].addEventListener('click', sclink);
-
 	}
 }
 
+const closeCart = e => {
+	const target = e.target;
+	if(target.classList.contains('overlay') || 
+		target.classList.contains('modal-close')) {
+			closeModal();
+		}
+};
+
 // closing the Modal by Esc
 document.addEventListener('keydown', e => {
-
 	if (e.code === 'Escape') {
 		closeModal();
 	}
-
 });
 
 btnCart.addEventListener('click', openModal);
-modalClose.addEventListener('click', closeModal);
-
-// closing the Modal by click overlay
-overlay.addEventListener('click', closeModal);
+modalCart.addEventListener('click', closeCart);

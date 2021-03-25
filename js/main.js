@@ -15,9 +15,138 @@ const mySwiper = new Swiper('.swiper-container', {
 
 // Cart
 const btnCart = document.querySelector('.button-cart'),
-	modalCart = document.querySelector('#modal-cart');
+	modalCart = document.querySelector('#modal-cart'),
+	viewAll = document.querySelectorAll('.view-all'),
+	navLink = document.querySelectorAll('.navigation-link:not(.view-all)'),
+	longGoodsList = document.querySelector('.long-goods-list'),
+	showAcsess = document.querySelectorAll('.show-acsess'),
+	showClosing = document.querySelectorAll('.show-closing'),
+	cartTableGoods = document.querySelector('.cart-table__goods'),
+	cardTableTotal = document.querySelector('.card-table__total');
+
+// Получение товаров 
+const getGoods = async () => {
+	// Вместо db/db.json можно поставить любой адрес!
+	const result = await fetch('db/db.json');	
+	if(!result.ok) {
+		throw 'Ошибочка вышла:' + result.status;
+	}
+	return await result.json();
+};
+
+// Обьект cart
+const cart = {
+	cartGoods: [],
+	// Добавление карточки на страницу
+	renderCart(){
+		cartTableGoods.textContent = '';
+		this.cartGoods.forEach(({id, name, price, count}) => {
+			const trGood =document.createElement('tr');
+			trGood.className = 'cart-item';
+			trGood.dataset.id = id;
+			
+			trGood.innerHTML = `
+				<td>${name}</td>
+				<td>${price}$</td>
+				<td><button class="cart-btn-minus">-</button></td>
+				<td>${count}</td>
+				<td><button class="cart-btn-plus">+</button></td>
+				<td>${price * count}$</td>
+				<td><button class="cart-btn-delete">x</button></td>
+			`;
+
+			cartTableGoods.append(trGood);
+		});
+
+		const totalPrice = this.cartGoods.reduce((sum, item) => {
+			return sum + item.price * item.count;
+		}, 0);
+		
+		cardTableTotal.textContent = totalPrice + '$';
+	},
+	
+	// Удаление товара из карзины
+	delGood(id){
+		this.cartGoods = this.cartGoods.filter(item => id !== item.id);
+		this.renderCart();
+	},
+	// Выбор количества товара при клике "-"
+	minusGood(id){
+		for (const item of this.cartGoods) {
+			if (item.id === id) {
+				if (item.count <= 1) {
+					this.delGood(id);
+				} else {
+					item.count--;
+				}
+				break;
+			}
+		}
+		this.renderCart();
+	},
+	// Выбор количества товара при клике "+"
+	pluseGood(id){
+		for (const item of this.cartGoods) {
+			if (item.id === id) {
+				item.count++;
+				break;
+			}
+		}
+		this.renderCart();
+	},
+	// Добавление товара в карзину
+	addCartGood(id){
+		const goodItem = this.cartGoods.find(item => item.id === id);
+		if(goodItem) {
+			this.pluseGood(id);
+		} else {
+			getGoods()
+				.then(data => data.find(item => item.id === id))
+				.then(({ id, name, price }) => {
+					this.cartGoods.push({
+						id,
+						name,
+						price,
+						count: 1
+					});
+				});
+		}
+	},
+}; 
+
+cart.renderCart();
+
+document.body.addEventListener('click', e => {
+	const addToCart = e.target.closest('.add-to-cart');
+
+	if (addToCart) {
+		cart.addCartGood(addToCart.dataset.id);
+	}
+});
+
+// Deleting a card when you click on a minus sign 
+cartTableGoods.addEventListener('click', e => {
+
+	const target = e.target;
+
+	if (target.tagName === "BUTTON") {
+		const id = target.closest('.cart-item').dataset.id;
+		if (target.classList.contains('cart-btn-delete')) {
+			cart.delGood(id);
+		}
+		if (target.classList.contains('cart-btn-minus')) {
+			cart.minusGood(id);
+		}
+		if (target.classList.contains('cart-btn-plus')) {
+			cart.pluseGood(id);
+		}
+	}
+	
+});
+
 
 const openModal = () => {
+	cart.renderCart();
 	modalCart.classList.add('show');
 };
 
@@ -60,24 +189,8 @@ document.addEventListener('keydown', e => {
 btnCart.addEventListener('click', openModal);
 modalCart.addEventListener('click', closeCart);
 
-
-
 // Working with goods
-const viewAll = document.querySelectorAll('.view-all'),
-	navLink = document.querySelectorAll('.navigation-link:not(.view-all)'),
-	longGoodsList = document.querySelector('.long-goods-list'),
-	showAcsess = document.querySelectorAll('.show-acsess'),
-	showClosing = document.querySelectorAll('.show-closing');
 
-// Получение товаров 
-const getGoods = async () => {
-	// Вместо db/db.json можно поставить любой адрес!
-	const result = await fetch('db/db.json');	
-	if(!result.ok) {
-		throw 'Ошибочка вышла:' + result.status;
-	}
-	return await result.json();
-};
 // Добавление карточки товара
 const createCart = ({ label, img, name, description, id, price}) => {
 	const card = document.createElement('div');
@@ -128,12 +241,7 @@ viewAll.forEach(elem => {
 // Фильтр
 const filterCards = (field, value) => {
 	getGoods()
-		.then(data => {
-			const filtereGoods = data.filter(good => {
-				return good[field] === value;
-			});
-			return filtereGoods;
-		})
+		.then(data => data.filter(good => good[field] === value))
 		.then(renderCards);
 };
 // Показ при клике

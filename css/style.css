@@ -376,6 +376,7 @@ button:focus {
     max-height: 400px;
     padding: 30px;
     position: relative;
+    border-radius: 15px;
 }
 
 .modal-title {
@@ -410,6 +411,7 @@ button:focus {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
+    margin-top: 35px;
 }
 
 .modal-input {
@@ -418,7 +420,6 @@ button:focus {
     padding: 10px;
     border-radius: 20px;
     border-style: none;
-    margin-bottom: 30px;
 }
 
 .cart-table {
@@ -430,7 +431,16 @@ button:focus {
 .cart-table th,
 .cart-table td{
     text-align: left;
-    border: 1px solid black
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background-color: #fdfdfd;
+}
+
+.cart-table thead th, .cart-table tbody td, .cart-table tfoot th {
+    padding: 8px;
+}
+
+.card-table__total {
+    text-align: end !important;
 }
 
 .cart-buy{
@@ -441,6 +451,21 @@ button:focus {
     height: 40px;
 }
 
+.cart-btn-minus, .cart-btn-plus, .cart-btn-delete {
+    border-radius: 50%;
+    border: none;
+    background-color: #65e963;
+    color: #474747;
+    width: 20px;
+    height: 20px;
+    font-size: 15px;
+}
+.cart-btn-delete {
+    background-color: #f31f1f;
+}
+.cart-btn-minus:hover, .cart-btn-plus:hover, .cart-btn-delete:hover {
+    color: #fff;
+}
 
 .mw-160 {
     max-width: 160px;

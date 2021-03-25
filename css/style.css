@@ -53,6 +53,9 @@ button {
     display: flex;
     align-items: center;
 }
+button:focus {
+    outline: none;
+}
 
 .button-icon, .button-price {
     margin-right: 10px;
@@ -368,17 +371,11 @@ button {
 }
 
 .modal {
-    background-color: #e0e0ff;
+    background-color: #c8c8ed;
     min-width: 600px;
     max-height: 400px;
     padding: 30px;
-    overflow: scroll;
     position: relative;
-}
-
-.modal-header{
-    display: flex;
-    justify-content: space-between;
 }
 
 .modal-title {
@@ -386,13 +383,27 @@ button {
     margin-bottom: 15px;
 }
 
+.modal-clear {
+    border: none;
+    border-radius: 9px;
+    background-color: #f31f1f;
+    color: #fff;
+    padding: 5px 10px;
+    font-size: 12px;
+    margin-bottom: 15px;
+}
+.modal-clear:hover {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
 .modal-close {
     position: absolute;
     background-color: transparent;
     right: 15px;
     top: 15px;
-    font-size: 24px;
+    font-size: 18px;
     border: none;
+    opacity: 60%;
 }
 
 .modal-form {

@@ -22,21 +22,43 @@ const btnCart = document.querySelector('.button-cart'),
 	showAcsess = document.querySelectorAll('.show-acsess'),
 	showClosing = document.querySelectorAll('.show-closing'),
 	cartTableGoods = document.querySelector('.cart-table__goods'),
-	cardTableTotal = document.querySelector('.card-table__total');
+	cardTableTotal = document.querySelector('.card-table__total'),
+	cartCount = document.querySelector('.cart-count'),
+	modalClear = document.querySelector('.modal-clear');
 
 // Получение товаров 
-const getGoods = async () => {
-	// Вместо db/db.json можно поставить любой адрес!
-	const result = await fetch('db/db.json');	
-	if(!result.ok) {
-		throw 'Ошибочка вышла:' + result.status;
-	}
-	return await result.json();
+// Функция синхронизации с базой данных при первом запросе!
+const checkGoods = () => {
+
+	const data = [];
+	return async () => {
+
+		if (data.length) {return data;}
+		// Вместо db/db.json можно поставить любой адрес!
+		const result = await fetch('db/db.json');	
+		if(!result.ok) {
+			throw 'Ошибочка вышла:' + result.status;
+		}
+		data.push(...(await result.json()));
+	
+		return data;
+	};
+	
 };
+const getGoods = checkGoods();
+// ---
 
 // Обьект cart
 const cart = {
 	cartGoods: [],
+
+	// Вывод количества товаров в корзине
+	countQuant() {
+		cartCount.textContent = this.cartGoods.reduce((sum, item) => {
+			return sum + item.count;
+		}, 0);
+	},
+
 	// Добавление карточки на страницу
 	renderCart(){
 		cartTableGoods.textContent = '';
@@ -69,6 +91,7 @@ const cart = {
 	delGood(id){
 		this.cartGoods = this.cartGoods.filter(item => id !== item.id);
 		this.renderCart();
+		this.countQuant();
 	},
 	// Выбор количества товара при клике "-"
 	minusGood(id){
@@ -83,6 +106,7 @@ const cart = {
 			}
 		}
 		this.renderCart();
+		this.countQuant();
 	},
 	// Выбор количества товара при клике "+"
 	pluseGood(id){
@@ -93,6 +117,7 @@ const cart = {
 			}
 		}
 		this.renderCart();
+		this.countQuant();
 	},
 	// Добавление товара в карзину
 	addCartGood(id){
@@ -109,11 +134,21 @@ const cart = {
 						price,
 						count: 1
 					});
+					this.countQuant();
 				});
 		}
 	},
+
+	// Метод очищения корзины
+	clearCart() {
+		this.cartGoods.length = 0;
+		this.countQuant();
+		this.renderCart();
+	},
 }; 
 
+// bind(cart) - явеная привязка контекста вызова к функции
+modalClear.addEventListener('click', cart.clearCart.bind(cart));
 cart.renderCart();
 
 document.body.addEventListener('click', e => {

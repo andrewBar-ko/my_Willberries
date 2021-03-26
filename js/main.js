@@ -24,7 +24,8 @@ const btnCart = document.querySelector('.button-cart'),
 	cartTableGoods = document.querySelector('.cart-table__goods'),
 	cardTableTotal = document.querySelector('.card-table__total'),
 	cartCount = document.querySelector('.cart-count'),
-	modalClear = document.querySelector('.modal-clear');
+	modalClear = document.querySelector('.modal-clear'),
+	modalForm = document.querySelector('.modal-form');
 
 // Получение товаров 
 // Функция синхронизации с базой данных при первом запросе!
@@ -302,4 +303,35 @@ showClosing.forEach(item => {
 		e.preventDefault();
 		filterCards('category', 'Clothing');
 	});
+});
+
+// Работа с сервером
+const postData = dataUser => fetch('server.php', {
+	method: 'POST',
+	body: dataUser,
+});
+
+modalForm.addEventListener('submit', e => {
+	e.preventDefault();
+
+	const formData = new FormData(modalForm);
+	formData.append('products', JSON.stringify(cart.cartGoods));
+
+	postData(formData)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error(response.status);
+			}
+			alert('Заказ отправлен, ожидайте!');
+			console.log(response.statusText);
+		})
+		.catch(err => {
+			alert('Ошибка!');
+			console.log(err);
+		})
+		.finally(() => {
+			closeModal();
+			modalForm.reset();
+			cart.cartGoods.length = 0;
+		});
 });
